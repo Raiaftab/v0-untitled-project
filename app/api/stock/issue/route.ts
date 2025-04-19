@@ -3,13 +3,13 @@ import { issueStock } from "@/lib/data"
 
 export async function POST(request: Request) {
   try {
-    const { branchId, itemId, quantity, personName, date } = await request.json()
+    const { branchId, itemId, quantity, personName, date, remarks } = await request.json()
 
     if (!branchId || !itemId || !quantity || !personName || !date) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
-    const success = await issueStock(branchId, itemId, quantity, personName, date)
+    const success = await issueStock(branchId, itemId, quantity, personName, date, remarks)
 
     if (!success) {
       return NextResponse.json({ error: "Not enough stock available" }, { status: 400 })

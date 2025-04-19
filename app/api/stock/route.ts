@@ -13,13 +13,13 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const { branchId, itemId, quantity, date } = await request.json()
+    const { areaId, itemId, quantity, date, remarks } = await request.json()
 
-    if (!branchId || !itemId || !quantity || !date) {
+    if (!areaId || !itemId || !quantity || !date) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
-    await addStock(branchId, itemId, quantity, date)
+    await addStock(areaId, itemId, quantity, date, remarks)
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error("Error adding stock:", error)

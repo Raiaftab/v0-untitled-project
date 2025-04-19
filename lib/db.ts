@@ -49,6 +49,7 @@ export type Transaction = {
   person_name: string | null
   transaction_date: Date
   created_at: Date
+  remarks: string | null
 }
 
 export type TransactionWithDetails = {
@@ -64,4 +65,5 @@ export type TransactionWithDetails = {
   person_name: string | null
   transaction_date: Date
   created_at: Date
+  remarks: string | null
 }

@@ -65,7 +65,22 @@ export async function getStockByBranchAndItem(branchId: number, itemId: number):
   return result.length > 0 ? result[0] : null
 }
 
-export async function addStock(branchId: number, itemId: number, quantity: number, date: string): Promise<void> {
+// Update the addStock function to include remarks
+export async function addStock(
+  areaId: number,
+  itemId: number,
+  quantity: number,
+  date: string,
+  remarks: string | null = null,
+): Promise<void> {
+  // Get the first branch in the area (Area Office)
+  const branches = await getBranchesByArea(areaId)
+  const branchId = branches[0]?.id
+
+  if (!branchId) {
+    throw new Error("No branch found for the selected area")
+  }
+
   // Check if stock entry exists
   const existingStock = await getStockByBranchAndItem(branchId, itemId)
 
@@ -87,25 +102,19 @@ export async function addStock(branchId: number, itemId: number, quantity: numbe
   // Record transaction
   await sql`
     INSERT INTO stock_transactions 
-    (branch_id, item_id, quantity, transaction_type, transaction_date) 
-    VALUES (${branchId}, ${itemId}, ${quantity}, 'add', ${date})
+    (branch_id, item_id, quantity, transaction_type, transaction_date, remarks) 
+    VALUES (${branchId}, ${itemId}, ${quantity}, 'add', ${date}, ${remarks})
   `
 }
 
-export async function updateStock(stockId: number, quantity: number): Promise<void> {
-  await sql`
-    UPDATE stock 
-    SET quantity = ${quantity}, last_updated = CURRENT_TIMESTAMP 
-    WHERE id = ${stockId}
-  `
-}
-
+// Update the issueStock function to include remarks
 export async function issueStock(
   branchId: number,
   itemId: number,
   quantity: number,
   personName: string,
   date: string,
+  remarks: string | null = null,
 ): Promise<boolean> {
   // Check if enough stock is available
   const stock = await getStockByBranchAndItem(branchId, itemId)
@@ -124,11 +133,19 @@ export async function issueStock(
   // Record transaction
   await sql`
     INSERT INTO stock_transactions 
-    (branch_id, item_id, quantity, transaction_type, person_name, transaction_date) 
-    VALUES (${branchId}, ${itemId}, ${quantity}, 'issue', ${personName}, ${date})
+    (branch_id, item_id, quantity, transaction_type, person_name, transaction_date, remarks) 
+    VALUES (${branchId}, ${itemId}, ${quantity}, 'issue', ${personName}, ${date}, ${remarks})
   `
 
   return true
+}
+
+export async function updateStock(stockId: number, quantity: number): Promise<void> {
+  await sql`
+    UPDATE stock 
+    SET quantity = ${quantity}, last_updated = CURRENT_TIMESTAMP 
+    WHERE id = ${stockId}
+  `
 }
 
 export async function deleteStock(stockId: number): Promise<void> {
@@ -150,12 +167,43 @@ export async function getTransactionsWithDetails(): Promise<TransactionWithDetai
       t.transaction_type, 
       t.person_name, 
       t.transaction_date, 
-      t.created_at
+      t.created_at,
+      t.remarks
     FROM stock_transactions t
     JOIN branches b ON t.branch_id = b.id
     JOIN areas a ON b.area_id = a.id
     JOIN items i ON t.item_id = i.id
     ORDER BY t.created_at DESC
+  `
+  return result
+}
+
+// Add a new function to get transactions by date range
+export async function getTransactionsByDateRange(
+  startDate: string,
+  endDate: string,
+): Promise<TransactionWithDetails[]> {
+  const result = await sql<TransactionWithDetails[]>`
+    SELECT 
+      t.id, 
+      t.branch_id, 
+      b.name as branch_name, 
+      b.area_id, 
+      a.name as area_name, 
+      t.item_id, 
+      i.name as item_name, 
+      t.quantity, 
+      t.transaction_type, 
+      t.person_name, 
+      t.transaction_date, 
+      t.created_at,
+      t.remarks
+    FROM stock_transactions t
+    JOIN branches b ON t.branch_id = b.id
+    JOIN areas a ON b.area_id = a.id
+    JOIN items i ON t.item_id = i.id
+    WHERE t.transaction_date BETWEEN ${startDate} AND ${endDate}
+    ORDER BY t.transaction_date DESC, t.created_at DESC
   `
   return result
 }

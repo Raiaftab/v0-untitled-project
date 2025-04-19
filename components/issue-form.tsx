@@ -45,6 +45,7 @@ export function IssueForm({ onStockIssued }: IssueFormProps) {
     quantity: "",
     personName: "",
     date: new Date().toISOString().split("T")[0],
+    remarks: "",
   })
 
   useEffect(() => {
@@ -90,7 +91,7 @@ export function IssueForm({ onStockIssued }: IssueFormProps) {
     ) {
       setNotification({
         show: true,
-        message: "Please fill all fields",
+        message: "Please fill all required fields",
         variant: "error",
       })
       return
@@ -110,6 +111,7 @@ export function IssueForm({ onStockIssued }: IssueFormProps) {
           quantity: Number.parseInt(formData.quantity),
           personName: formData.personName,
           date: formData.date,
+          remarks: formData.remarks || null,
         }),
       })
 
@@ -128,6 +130,7 @@ export function IssueForm({ onStockIssued }: IssueFormProps) {
           itemId: "",
           quantity: "",
           personName: "",
+          remarks: "",
         }))
 
         // Notify parent component
@@ -241,6 +244,16 @@ export function IssueForm({ onStockIssued }: IssueFormProps) {
                 type="date"
                 value={formData.date}
                 onChange={(e) => handleChange("date", e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="remarks">Remarks</Label>
+              <Input
+                id="remarks"
+                value={formData.remarks}
+                onChange={(e) => handleChange("remarks", e.target.value)}
+                placeholder="Add any comments or notes here"
               />
             </div>
 

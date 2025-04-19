@@ -38,12 +38,13 @@ export function StockForm({ onStockAdded }: StockFormProps) {
   const [loading, setLoading] = useState(false)
   const [notification, setNotification] = useState({ show: false, message: "", variant: "default" as const })
 
+  // Update the form state to include remarks and remove branchId
   const [formData, setFormData] = useState({
     areaId: "",
-    branchId: "",
     itemId: "",
     quantity: "",
     date: new Date().toISOString().split("T")[0],
+    remarks: "",
   })
 
   useEffect(() => {
@@ -76,13 +77,14 @@ export function StockForm({ onStockAdded }: StockFormProps) {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
+  // Update the handleSubmit function
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!formData.areaId || !formData.branchId || !formData.itemId || !formData.quantity || !formData.date) {
+    if (!formData.areaId || !formData.itemId || !formData.quantity || !formData.date) {
       setNotification({
         show: true,
-        message: "Please fill all fields",
+        message: "Please fill all required fields",
         variant: "error",
       })
       return
@@ -97,10 +99,11 @@ export function StockForm({ onStockAdded }: StockFormProps) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          branchId: Number.parseInt(formData.branchId),
+          areaId: Number.parseInt(formData.areaId),
           itemId: Number.parseInt(formData.itemId),
           quantity: Number.parseInt(formData.quantity),
           date: formData.date,
+          remarks: formData.remarks || null,
         }),
       })
 
@@ -116,10 +119,10 @@ export function StockForm({ onStockAdded }: StockFormProps) {
         // Reset form
         setFormData({
           areaId: "",
-          branchId: "",
           itemId: "",
           quantity: "",
           date: new Date().toISOString().split("T")[0],
+          remarks: "",
         })
 
         // Notify parent component
@@ -143,16 +146,19 @@ export function StockForm({ onStockAdded }: StockFormProps) {
     }
   }
 
+  // Update the handleClear function
   const handleClear = () => {
     setFormData({
       areaId: "",
-      branchId: "",
       itemId: "",
       quantity: "",
       date: new Date().toISOString().split("T")[0],
+      remarks: "",
     })
   }
 
+  // Remove the branch selection from the form and add remarks field
+  // Replace the form JSX with this updated version
   return (
     <>
       <Card>
@@ -173,26 +179,6 @@ export function StockForm({ onStockAdded }: StockFormProps) {
                   {areas.map((area) => (
                     <SelectItem key={area.id} value={area.id.toString()}>
                       {area.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="branch">Branch</Label>
-              <Select
-                value={formData.branchId}
-                onValueChange={(value) => handleChange("branchId", value)}
-                disabled={!formData.areaId}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select Branch" />
-                </SelectTrigger>
-                <SelectContent>
-                  {branches.map((branch) => (
-                    <SelectItem key={branch.id} value={branch.id.toString()}>
-                      {branch.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -233,6 +219,16 @@ export function StockForm({ onStockAdded }: StockFormProps) {
                 type="date"
                 value={formData.date}
                 onChange={(e) => handleChange("date", e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="remarks">Remarks</Label>
+              <Input
+                id="remarks"
+                value={formData.remarks}
+                onChange={(e) => handleChange("remarks", e.target.value)}
+                placeholder="Add any comments or notes here"
               />
             </div>
 

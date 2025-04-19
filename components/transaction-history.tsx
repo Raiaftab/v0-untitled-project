@@ -19,6 +19,7 @@ type Transaction = {
   person_name: string | null
   transaction_date: string
   created_at: string
+  remarks?: string
 }
 
 export function TransactionHistory() {
@@ -58,18 +59,19 @@ export function TransactionHistory() {
                 <TableHead>Quantity</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Person</TableHead>
+                <TableHead>Remarks</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8">
+                  <TableCell colSpan={7} className="text-center py-8">
                     Loading transaction history...
                   </TableCell>
                 </TableRow>
               ) : transactions.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8">
+                  <TableCell colSpan={7} className="text-center py-8">
                     No transaction records found
                   </TableCell>
                 </TableRow>
@@ -94,6 +96,7 @@ export function TransactionHistory() {
                       )}
                     </TableCell>
                     <TableCell>{transaction.person_name || "-"}</TableCell>
+                    <TableCell>{transaction.remarks || "-"}</TableCell>
                   </TableRow>
                 ))
               )}
