@@ -1,6 +1,6 @@
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
-import bcrypt from "bcrypt"
+import bcrypt from "bcryptjs"
 import { v4 as uuidv4 } from "uuid"
 
 export type User = {
@@ -153,7 +153,7 @@ export async function logout() {
   cookies().delete("user_role")
   cookies().delete("user_name")
   cookies().delete("username")
-  
+
   // Don't redirect here, let the caller handle redirection
 }
 

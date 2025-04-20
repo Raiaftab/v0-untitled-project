@@ -69,11 +69,11 @@ export default function LoginPage() {
       } else {
         console.error("Login failed:", data.error)
 
-        // Show a more helpful message for the default users
-        if ((username === "admin" || username === "user") && password !== "admin123") {
+        // Show a more helpful message
+        if (username === "admin" || username === "user") {
           setNotification({
             show: true,
-            message: "For default users, the password is 'admin123'",
+            message: `For default users, try username: ${username}, password: ${username === "admin" ? "admin123" : "user123"}`,
             variant: "error",
           })
         } else {
@@ -105,7 +105,7 @@ export default function LoginPage() {
           </div>
           <CardTitle className="text-2xl font-bold">Stock Management System</CardTitle>
           <CardDescription>Enter your credentials to sign in</CardDescription>
-          <CardDescription className="text-sm text-gray-500 mt-2">
+          <CardDescription className="text-sm text-gray-500 mt-2 font-bold">
             Use admin/admin123 or user/user123 to login
           </CardDescription>
         </CardHeader>
