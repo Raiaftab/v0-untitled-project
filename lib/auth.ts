@@ -31,6 +31,20 @@ const DEFAULT_USERS = [
     role: "user" as const,
     password: "user123", // Plain text for direct comparison
   },
+    {
+    id: 2,
+    username: "user1",
+    name: "Regular User",
+    role: "user" as const,
+    password: "user123", // Plain text for direct comparison
+  },
+    {
+    id: 2,
+    username: "Aftab",
+    name: "Aftab Ameer",
+    role: "user" as const,
+    password: "user123", // Plain text for direct comparison
+  },
 ]
 
 // Keep track of custom users (those created through the UI)
