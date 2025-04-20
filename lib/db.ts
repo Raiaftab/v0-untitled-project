@@ -1,7 +1,29 @@
-import { neon } from "@neondatabase/serverless"
+import { neon, neonConfig } from "@neondatabase/serverless"
 
-// Create a SQL client with the pooled connection
-export const sql = neon(process.env.DATABASE_URL!)
+// Configure neon with retries and timeout
+neonConfig.fetchConnectionCache = true
+neonConfig.fetchRetryTimeout = 5000 // 5 seconds timeout
+neonConfig.fetchRetryCount = 3 // Retry 3 times
+
+// Create a SQL client with better error handling
+const createSqlClient = () => {
+  try {
+    // Ensure DATABASE_URL is available
+    if (!process.env.DATABASE_URL) {
+      throw new Error("DATABASE_URL environment variable is not defined")
+    }
+
+    return neon(process.env.DATABASE_URL)
+  } catch (error) {
+    console.error("Failed to create database client:", error)
+    // Return a function that will throw an error when called
+    return () => {
+      throw new Error(`Database connection failed: ${error instanceof Error ? error.message : String(error)}`)
+    }
+  }
+}
+
+export const sql = createSqlClient()
 
 // Types for our database entities
 export type Area = {
@@ -66,4 +88,20 @@ export type TransactionWithDetails = {
   transaction_date: Date
   created_at: Date
   remarks: string | null
+}
+
+export type User = {
+  id: number
+  username: string
+  password_hash: string
+  name: string
+  role: "admin" | "user"
+  created_at: Date
+}
+
+export type Session = {
+  id: string
+  user_id: number
+  expires_at: Date
+  created_at: Date
 }
